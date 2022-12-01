@@ -50,35 +50,41 @@ func Decrypt(encrypted string, password string) ([]byte, error) {
 
 // PKCS#7 padding
 
-func pad(data []byte, blocklen int) ([]byte, error) {
-	if blocklen < 1 {
-		return nil, fmt.Errorf("invalid blocklen %d", blocklen)
+func pad(b []byte, blocksize int) ([]byte, error) {
+	if blocksize <= 0 {
+		return nil, fmt.Errorf("invalid blocksize %d", blocksize)
 	}
-	padlen := blocklen - (len(data) % blocklen)
-	if padlen == 0 {
-		padlen = blocklen
+	if len(b) == 0 {
+		return nil, fmt.Errorf("invalid data")
 	}
-	pad := bytes.Repeat([]byte{byte(padlen)}, padlen)
-	return append(data, pad...), nil
+	n := blocksize - (len(b) % blocksize)
+	pb := make([]byte, len(b)+n)
+	copy(pb, b)
+	copy(pb[len(b):], bytes.Repeat([]byte{byte(n)}, n))
+	return pb, nil
 }
 
-func unpad(data []byte, blocklen int) ([]byte, error) {
-	if blocklen < 1 {
-		return nil, fmt.Errorf("invalid blocklen %d", blocklen)
+func unpad(b []byte, blocksize int) ([]byte, error) {
+	if blocksize <= 0 {
+		return nil, fmt.Errorf("invalid blocksize %d", blocksize)
 	}
-	if len(data)%blocklen != 0 || len(data) == 0 {
-		return nil, fmt.Errorf("invalid data len %d", len(data))
+	if len(b) == 0 {
+		return nil, fmt.Errorf("invalid data")
 	}
-	// the last byte is the length of padding
-	padlen := int(data[len(data)-1])
-	// check padding integrity, all bytes should be the same
-	pad := data[len(data)-padlen:]
-	for _, padbyte := range pad {
-		if padbyte != byte(padlen) {
+	if len(b)%blocksize != 0 {
+		return nil, fmt.Errorf("invalid data length")
+	}
+	c := b[len(b)-1]
+	n := int(c)
+	if n == 0 || n > len(b) {
+		return nil, fmt.Errorf("invalid padding")
+	}
+	for i := 0; i < n; i++ {
+		if b[len(b)-n+i] != c {
 			return nil, fmt.Errorf("invalid padding")
 		}
 	}
-	return data[:len(data)-padlen], nil
+	return b[:len(b)-n], nil
 }
 
 // String generates a random string using only letters provided in the letters parameter
