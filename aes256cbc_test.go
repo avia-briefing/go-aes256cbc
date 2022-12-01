@@ -5,7 +5,7 @@ import (
 )
 
 func Test(t *testing.T) {
-	key := randomString(32)
+	key := random(32)
 	t.Logf("key: %s", key)
 	original := "Hello World"
 	encrypted, err := Encrypt([]byte(original), key)
