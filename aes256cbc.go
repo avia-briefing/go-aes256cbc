@@ -13,11 +13,11 @@ import (
 func Encrypt(data []byte, key string) (string, error) {
 	keyData, err := aes.NewCipher([]byte(key))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error creating cipher: %v", err)
 	}
 	data, err = pad(data, aes.BlockSize)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error padding data: %v", err)
 	}
 	iv := random(aes.BlockSize)
 	mode := cipher.NewCBCEncrypter(keyData, []byte(iv))
@@ -28,7 +28,7 @@ func Encrypt(data []byte, key string) (string, error) {
 func Decrypt(encrypted string, password string) ([]byte, error) {
 	keyData, err := aes.NewCipher([]byte(password))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating cipher: %v", err)
 	}
 	if len(encrypted) <= aes.BlockSize {
 		return nil, fmt.Errorf("encrypted data too short")
@@ -37,13 +37,13 @@ func Decrypt(encrypted string, password string) ([]byte, error) {
 	encryptedString := encrypted[aes.BlockSize:]
 	data, err := base64.StdEncoding.DecodeString(encryptedString)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error decoding base64: %v", err)
 	}
 	mode := cipher.NewCBCDecrypter(keyData, []byte(iv))
 	mode.CryptBlocks(data, data)
 	data, err = unpad(data, aes.BlockSize)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unpadding data: %v", err)
 	}
 	return data, nil
 }

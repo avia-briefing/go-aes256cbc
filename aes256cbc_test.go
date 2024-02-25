@@ -22,8 +22,8 @@ func TestHello(t *testing.T) {
 }
 
 func TestDecrypt(t *testing.T) {
-	key := "BpLnfgDsc2WD8F2qNfHK5a84jjJkwzDk"
-	encrypted := "BvaOPsYfRHDTd1vPLElaYvmLbulPoDEewU29UqTPNEMuNH5+BK7gqjJ1Ghf/6lsTwXXUV8UQ5sIlpS8C"
+	key := "sIBZrzG9l4Y3li37khem1hhiB1y0n02P"
+	encrypted := "S41oeSkhwvKM4aEqQAfj4IO7uTEFP2H4Q2bJig=="
 	decrypted, err := Decrypt(encrypted, key)
 	if err != nil {
 		t.Errorf("Error: %v", err)
